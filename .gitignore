@@ -118,3 +118,4 @@ dist
 config.json
 zoho-creds.json
 notes.md
+results/
