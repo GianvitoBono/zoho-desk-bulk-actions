@@ -5,18 +5,17 @@ import minimist from 'minimist';
 var argv = minimist(process.argv.slice(2), { string: 'view-id' });
 
 (async() => {
+    const configRaw = await fs.readFile('config.json', 'utf-8');
+    const config = JSON.parse(configRaw);
+    const zClient = new ZohoDeskClient(config.refreshToken, config.clientId, config.clientSecret, config.orgId);
     switch (argv._[0]) {
         case 'get':
             switch (argv._[1]) {
                 case 'tickets':
-                    const configRaw = await fs.readFile('config.json', 'utf-8');
-                    const config = JSON.parse(configRaw);
                     console.log('Config Loaded');
 
-                    const zClient = new ZohoDeskClient(config.refreshToken, config.clientId, config.clientSecret, config.orgId);
-
-                    const tickets = await zClient.getTicketsFromView(argv['view-id']);
-                    const ticketsWithBody = [];
+                    let tickets = await zClient.getTicketsFromView(argv['view-id'], argv['from'], argv['to']);
+                    let ticketsWithBody = [];
 
                     await asyncForEach(tickets, async(t) => {
                         let tmp = await zClient.getTicketBody(t.id);
